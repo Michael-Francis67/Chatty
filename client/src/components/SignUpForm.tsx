@@ -25,7 +25,7 @@ export interface formSchemaType {
 }
 
 const SignUpForm = () => {
-    const [signup, {data: user, error: errorMessage, isLoading}] = useSignUpMutation();
+    const [signup, {error: errorMessage, isLoading}] = useSignUpMutation();
     const navigate = useNavigate();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -38,15 +38,16 @@ const SignUpForm = () => {
         },
     });
 
-    const onSubmit = (data: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
         try {
             console.log("Form submitted:", data);
 
-            signup(data)
+            await signup(data)
             .unwrap()
-            .then(() => {
-                console.log("signup successful", user);
+            .then((user) => {
+                console.log("Signup successful:", user);
             });
+
             form.reset();
 
             toast.success("Account created successfully");

@@ -6,6 +6,9 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Link} from "react-router";
+import {toast} from "sonner";
+import {useSignInMutation} from "@/state/services/authApi";
+import Loader from "./Loader";
 
 const formSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -13,6 +16,8 @@ const formSchema = z.object({
 });
 
 const SignInForm = () => {
+    const [signin, {error: errorMessage, isLoading}] = useSignInMutation();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -21,9 +26,27 @@ const SignInForm = () => {
         },
     });
 
-    const onSubmit = (data: z.infer<typeof formSchema>) => {
-        console.log("Form submitted:", data);
-        form.reset();
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
+        try {
+            console.log("Form submitted:", data);
+
+            await signin(data)
+            .unwrap()
+            .then((user) => {
+                console.log("Signin successful:", user);
+            });
+
+            form.reset();
+            toast.success("Signed in successfully");
+
+            window.location.href = "/";
+        } catch (error) {
+            const message = errorMessage && typeof errorMessage === "string" ? errorMessage : "An error occurred";
+            toast.error(message);
+
+            console.error("Signin error:", error);
+            console.log("Error details:", errorMessage);
+        }
     };
 
     return (
@@ -73,7 +96,7 @@ const SignInForm = () => {
                     />
 
                     <Button type="submit" className="w-full">
-                        Login
+                        {isLoading ? <Loader /> : "Sign In"}
                     </Button>
                 </form>
             </Form>
