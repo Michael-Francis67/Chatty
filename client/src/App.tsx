@@ -9,6 +9,8 @@ import Navbar from "./components/Navbar";
 import Loader from "./components/Loader";
 import {useGetMeQuery} from "./state/services/authApi";
 import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
     const {data: user, isLoading} = useGetMeQuery();
@@ -23,7 +25,7 @@ function App() {
     }
 
     return (
-        <div className="w-full h-screen overflow-hidden">
+        <div className="w-full h-screen overflow-hidden flex flex-col gap-2">
             <Navbar />
             <Routes>
                 <Route element={<AuthLayout />}>
@@ -32,6 +34,9 @@ function App() {
                 </Route>
 
                 <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to={"/signin"} />} />
+
+                <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to={"/signin"} />} />
+                <Route path="/settings" element={isAuthenticated ? <SettingsPage /> : <Navigate to={"/signin"} />} />
             </Routes>
         </div>
     );
