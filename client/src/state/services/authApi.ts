@@ -17,7 +17,7 @@ interface responseType {
 
 export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({
-        getMe: builder.query<void, void>({
+        getMe: builder.query<User, void>({
             query: () => "/auth/me",
             providesTags: ["getUser"],
         }),
@@ -27,6 +27,7 @@ export const authApi = api.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
+            invalidatesTags: ["getUser"],
         }),
         signUp: builder.mutation<responseType, {email: string; password: string; firstName: string; lastName: string}>({
             query: (data) => ({
@@ -34,12 +35,14 @@ export const authApi = api.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
+            invalidatesTags: ["getUser"],
         }),
         signOut: builder.mutation<void, void>({
             query: () => ({
                 url: "/auth/logout",
                 method: "POST",
             }),
+            invalidatesTags: ["getUser"],
         }),
     }),
 });

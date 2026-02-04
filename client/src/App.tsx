@@ -1,47 +1,37 @@
 import {Routes, Route} from "react-router";
+import {Navigate} from "react-router";
+import {useEffect} from "react";
+
 import AuthLayout from "./components/AuthLayout";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import Navbar from "./components/Navbar";
 import Loader from "./components/Loader";
-
-// import ErrorBanner from "./components/ErrorBanner";
-import {Navigate, redirect} from "react-router";
-import {useEffect} from "react";
+import {useGetMeQuery} from "./state/services/authApi";
+import HomePage from "./pages/HomePage";
 
 function App() {
     const {data: user, isLoading} = useGetMeQuery();
+    const isAuthenticated = Boolean(user);
 
     useEffect(() => {
-        document.title = "Chatty - Connect and Chat Seamlessly";
-    }, []);
+        console.log("User data:", {user, isAuthenticated});
+    }, [user, isAuthenticated]);
 
     if (isLoading) {
         return <Loader />;
     }
-
-    if (user) {
-        return redirect("/");
-    } else {
-        redirect("/auth/signin");
-    }
-
-    console.log("App mounted", user);
-
-    // if (isError) {
-    //     return (
-    //         <ErrorBanner message="Sorry, something went wrong while validating your session, Please try again later. Thank you." />
-    //     );
-    // }
 
     return (
         <div className="w-full h-screen overflow-hidden">
             <Navbar />
             <Routes>
                 <Route element={<AuthLayout />}>
-                    <Route path="/auth/signin" element={user ? <Navigate to="/" /> : <SignInPage />} />
-                    <Route path="/auth/signup" element={user ? <Navigate to="/" /> : <SignUpPage />} />
+                    <Route path="/signin" element={isAuthenticated ? <Navigate to={"/"} /> : <SignInPage />} />
+                    <Route path="/signup" element={isAuthenticated ? <Navigate to={"/"} /> : <SignUpPage />} />
                 </Route>
+
+                <Route path="/" element={isAuthenticated ? <HomePage /> : <Navigate to={"/signin"} />} />
             </Routes>
         </div>
     );
