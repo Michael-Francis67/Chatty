@@ -1,9 +1,9 @@
 import jwt, {JwtPayload} from "jsonwebtoken";
 import {Request, Response, NextFunction} from "express";
-import User from "../models/user.model";
+import User, { IUser } from "../models/user.model";
 
 export interface AuthenticatedRequest extends Request {
-    user: any;
+    user: IUser | null;
 }
 
 export const authenticateToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

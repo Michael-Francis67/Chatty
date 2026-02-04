@@ -5,10 +5,10 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {redirect} from "react-router";
-import {useSignupMutation} from "@/state/api";
+import {useNavigate} from "react-router";
 import Loader from "./Loader";
 import {toast} from "sonner";
+import {useSignUpMutation} from "@/state/services/authApi";
 
 const formSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -25,7 +25,8 @@ export interface formSchemaType {
 }
 
 const SignUpForm = () => {
-    const [signup, {isLoading}] = useSignupMutation();
+    const [signup, {data: user, error: errorMessage, isLoading}] = useSignUpMutation();
+    const navigate = useNavigate();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -41,15 +42,20 @@ const SignUpForm = () => {
         try {
             console.log("Form submitted:", data);
 
-            signup(data);
+            signup(data)
+            .unwrap()
+            .then(() => {
+                console.log("signup successful", user);
+            });
             form.reset();
 
             toast.success("Account created successfully");
-            redirect("/");
+            navigate("/");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "An error occurred");
 
             console.error("Signup error:", error);
+            console.log("Error details:", errorMessage);
         }
     };
 

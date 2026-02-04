@@ -3,14 +3,15 @@ import AuthLayout from "./components/AuthLayout";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import Navbar from "./components/Navbar";
-import {useCheckAuthQuery} from "./state/api";
 import Loader from "./components/Loader";
-import ErrorBanner from "./components/ErrorBanner";
+
+// import ErrorBanner from "./components/ErrorBanner";
 import {Navigate, redirect} from "react-router";
 import {useEffect} from "react";
+import {useGetMeQuery} from "./state/services/authApi";
 
 function App() {
-    const {data: user, isLoading, isError} = useCheckAuthQuery({});
+    const {data: user, isLoading} = useGetMeQuery();
 
     useEffect(() => {
         document.title = "Chatty - Connect and Chat Seamlessly";
@@ -26,6 +27,8 @@ function App() {
         redirect("/auth/signin");
     }
 
+    console.log("App mounted", user);
+
     // if (isError) {
     //     return (
     //         <ErrorBanner message="Sorry, something went wrong while validating your session, Please try again later. Thank you." />
@@ -37,8 +40,8 @@ function App() {
             <Navbar />
             <Routes>
                 <Route element={<AuthLayout />}>
-                    <Route path="/auth/signin" element={user ? <Navigate to="/" /> : <SignInPage />} />
-                    <Route path="/auth/signup" element={user ? <Navigate to="/" /> : <SignUpPage />} />
+                    <Route path="/signin" element={<SignInPage />} />
+                    <Route path="/signup" element={<SignUpPage />} />
                 </Route>
             </Routes>
         </div>

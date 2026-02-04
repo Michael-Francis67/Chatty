@@ -3,6 +3,7 @@ import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import {upsertStreamUser} from "@/libraries/stream";
 import {generateToken} from "@/libraries/generateToken";
+import {AuthenticatedRequest} from "@/middlewares/auth.middleware";
 
 export const signUp = async (req: Request, res: Response) => {
     try {
@@ -92,6 +93,17 @@ export const logout = async (req: Request, res: Response) => {
         res.status(200).json({message: "User logged out successfully"});
     } catch (error: any) {
         console.log("Error in logout controller", error);
+        res.status(500).json({message: error.message});
+    }
+};
+
+export const getMe = async (req: Request, res: Response) => {
+    try {
+        // Assuming authenticateToken attaches user to req
+        // @ts-expect-error: user is attached by authenticateToken middleware
+        res.status(200).json(req.user);
+    } catch (error: any) {
+        console.log("Error in getMe controller", error);
         res.status(500).json({message: error.message});
     }
 };

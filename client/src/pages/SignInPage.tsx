@@ -15,7 +15,7 @@ const SignInPage = () => {
                 <CardFooter className="flex-col gap-2">
                     <div className="text-sm text-muted-foreground">
                         Don't have an account?{" "}
-                        <Link to="/auth/signup" className="text-primary underline-offset-4 hover:underline">
+                        <Link to="/signup" className="text-primary underline-offset-4 hover:underline">
                             Sign Up
                         </Link>
                     </div>
