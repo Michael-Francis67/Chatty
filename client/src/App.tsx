@@ -8,7 +8,6 @@ import Loader from "./components/Loader";
 // import ErrorBanner from "./components/ErrorBanner";
 import {Navigate, redirect} from "react-router";
 import {useEffect} from "react";
-import {useGetMeQuery} from "./state/services/authApi";
 
 function App() {
     const {data: user, isLoading} = useGetMeQuery();
@@ -40,8 +39,8 @@ function App() {
             <Navbar />
             <Routes>
                 <Route element={<AuthLayout />}>
-                    <Route path="/signin" element={<SignInPage />} />
-                    <Route path="/signup" element={<SignUpPage />} />
+                    <Route path="/auth/signin" element={user ? <Navigate to="/" /> : <SignInPage />} />
+                    <Route path="/auth/signup" element={user ? <Navigate to="/" /> : <SignUpPage />} />
                 </Route>
             </Routes>
         </div>
