@@ -1,9 +1,8 @@
 import type {Request, Response} from "express";
-import User from "../models/user.model";
+import {prisma} from "@/configurations/prisma";
 import bcrypt from "bcryptjs";
 import {upsertStreamUser} from "@/libraries/stream";
 import {generateToken} from "@/libraries/generateToken";
-import {AuthenticatedRequest} from "@/middlewares/auth.middleware";
 
 export const signUp = async (req: Request, res: Response) => {
     try {
@@ -13,7 +12,11 @@ export const signUp = async (req: Request, res: Response) => {
             res.status(400).json({message: "All fields are required."});
         }
 
-        const user = await User.findOne({email});
+        const user = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
 
         if (user) {
             res.status(400).json({message: "User already exists, please login instead"});
@@ -22,28 +25,28 @@ export const signUp = async (req: Request, res: Response) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            username: email.split("@")[0],
-            password: hashedPassword,
+        const newUser = await prisma.user.create({
+            data: {
+                firstName,
+                lastName,
+                email,
+                username: email.split("@")[0],
+                password: hashedPassword,
+            },
         });
-
-        await newUser.save();
 
         // create stream user here
         await upsertStreamUser({
-            id: newUser._id.toString(),
+            id: newUser.id.toString(),
             name: `${newUser.firstName} ${newUser.lastName}`,
             image: newUser.profilePic || "",
         });
 
         // generate token
-        await generateToken(newUser._id.toString(), res);
+        await generateToken(newUser.id.toString(), res);
 
         // @ts-ignore
-        res.status(201).json({message: "User registered successfully", user: {...newUser._doc, password: undefined}});
+        res.status(201).json({message: "User registered successfully", user: {...newUser, password: undefined}});
     } catch (error: any) {
         console.log("Error in signup controller", error);
         res.status(500).json({message: error.message});
@@ -58,7 +61,11 @@ export const login = async (req: Request, res: Response) => {
             res.status(400).json({message: "All fields are required."});
         }
 
-        const user = await User.findOne({email});
+        const user = await prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
 
         if (!user) {
             res.status(400).json({message: "Invalid credentials."});
@@ -73,7 +80,7 @@ export const login = async (req: Request, res: Response) => {
         }
 
         // generate token
-        await generateToken(user._id.toString(), res);
+        await generateToken(user.id.toString(), res);
 
         res.status(200).json({
             message: "User logged in successfully",

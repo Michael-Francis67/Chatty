@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -9,20 +8,16 @@ import {createServer} from "http";
 
 // local imports
 import app from "@/app";
-import connectDB from "@/configurations/database";
 
 // routes imports
 import authRoutes from "@/routes/auth.route";
-
-// configure environment variables
-dotenv.config({path: "./.env.local"});
+import { ENV } from "./configurations/env";
 
 // middlewares
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({policy: "cross-origin"}));
+app.use(helmet())
 app.use(
     cors({
-        origin: process.env.CLIENT_URL,
+        origin: ENV.CLIENT_URL,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true,
     })
@@ -40,7 +35,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL,
+        origin: ENV.CLIENT_URL,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     },
 });
@@ -49,14 +44,9 @@ io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = ENV.PORT;
 
-connectDB(process.env.MONGO_URI as string)
-.then(() => {
-    server.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 })
-.catch((error) => {
-    console.error("Failed to start server:", error);
-});
+
